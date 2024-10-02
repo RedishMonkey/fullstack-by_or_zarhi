@@ -1,0 +1,15 @@
+///////////////////////
+to export from another js file
+on the file to export
+
+module.exports = {
+    property1: [something to export]
+    property2: [something to export]
+    }
+
+on the file to export
+const {property1, property2} = require(./[file to export name])
+console.log(property1)
+console.log(property2)
+
+
