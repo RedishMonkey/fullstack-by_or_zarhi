@@ -1,72 +1,27 @@
-// const users = [{id:1, name:"itay"}]
-const User = require('../models/user')
+const User = require('../models/user');
+const signUpSchema = require('../lib/validation/user')
+const { z } = require('zod')
 
-
-const getUsers = (req, res) => {  
-    usersArr = JSON.stringify(users)
-    res.send(usersArr);
-  }
-
-const addUser = async (req, res) => {
-    // const {name} = req.body;
-    // if (!name) {
-    //   return res.status(400).json({ error: 'name is required' });
-    // }
-    // const newUser = {id:users.length + 1, name:name}
-    // users.push(newUser);
-    // res.send("user added")
-
-    const {name, username} = req.body;
-    const user = new User({name,username});
-    console.log('created user')
-    await user.save();
-    console.log('saved user')
-    return res.status(201).send({name, username})
-
-  }
-
-const updateUser = (req, res) => {
-    const {id} = req.params 
-    const {name} = req.body;
-    
-    if(!id)
-    {
-        res.status(400).send('id doesnt exist');
+const sighUp =  async (req, res) => {
+    try{
+        const { fullName, username, email, password } = signUpSchema.parse(req.body);
+        console.log(req.body)
+        return res.status(201).json({message: "user created"})
     }
-    if(!name)
-    {
-        res.status(400).send('name doesnt exist');
-    }
+    catch (error) {
+        console.log(error);
 
-    userIndex = users.findIndex(user => user.id == id);
-    if(userIndex==-1)
-    {
-        res.send('user doesnt exist')
-    }
-    users[userIndex].name = name
-    res.send('user updated')
-}
+        if(error instanceof z.ZodError)
+        {
+            return res.status(400).json({ message: error.errors[0].message })
+        }
 
-const deleteUser = (req,res) => {
-    const {id} = req.params
+        return res.status(500).json({ message: 'Internal server error' })
 
-    if(!id)
-    {
-        res.status(400).send('did not get id')
     }
-    userIndex = users.findIndex(user => user.id == id);
-    if(id == -1)
-    {
-        res.status(400).send('user doesnt exist');
-    }
-
-    users.splice(userIndex,1);
-    res.send('user deleted');
-}
+};
 
 module.exports = {
-    getUsers,
-    addUser,
-    updateUser,
-    deleteUser
+    sighUp
 }
+
