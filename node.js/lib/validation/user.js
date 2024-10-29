@@ -9,7 +9,7 @@ const signUpSchema = z.object({
     .max(20, {
       message: 'Full name must be at most 20 characters long',
     })
-    .regex(/^[a-zA-Z/s]+$/, {
+    .regex(/^([a-zA-Z]+\s*)+$/).refine((data)=>data.trim().split(' ').length > 1, {
       message: 'Full name must contain only letters and spaces',
     }),
 
