@@ -1,26 +1,31 @@
 const User = require('../models/user');
-const signUpSchema = require('../lib/validation/user');
+const {signUpSchema, signInSchema} = require('../lib/validation/user');
 const { z } = require('zod');
 const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+const {setTokenCookie} = require('../lib/utils');
 
-const signUp =  async (req, res) => {
-    try{
+
+const signUp = async (req, res) => {
+    try {
         const { fullName, username, email, password } = signUpSchema.parse(req.body);
+
+        const usernameExists = await User.findOne({ username });
+        console.log(1.1);
+        if (usernameExists) {
+            console.log(1.2)
+            return res.status(400).json({ message: 'Username already exists' });
+        }
+
         
-        const usernameExists = await User.findOne({username});
-        if(usernameExists)
-        {
-            return res.status(400).json({message: 'Username already exists'});
+        const emailExists = await User.findOne({ username });
+        if (emailExists) {
+            return res.status(400).json({ message: 'email already exists' });
         }
-        const emailExists = await User.findOne({username});
-        if(emailExists)
-        {
-            return res.status(400).json({message: 'email already exists'});
-        }
+
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        
         const user = new User({
             fullName,
             username,
@@ -28,27 +33,21 @@ const signUp =  async (req, res) => {
             password: hashedPassword,
         })
 
+
         const newUser = await user.save()
 
-        const token = jwt.sign({
-            id: newUser._id,
-            username: newUser.username,
-        },process.env.JWT_SECRET,
-        {expiresIn: '24h'})
+        if (!newUser) {
+            return res.status(400).json({ message: 'failed to create user' })
+        }
 
-        res.coockie('token',token,{
-            httpOnly: true,
-            sameSite: 'strict',
-            maxAge: 24*60*60*1000, // 24 hours
-        })
+        setTokenCookie(res,newUser, process.env.JWT_SECRET)
 
-        res.status(201).json({message:'user created successfully'});
+        return res.status(201).json({ message: 'user created successfully' });
     }
     catch (error) {
         console.log(error);
 
-        if(error instanceof z.ZodError)
-        {
+        if (error instanceof z.ZodError) {
             return res.status(400).json({ message: error.errors[0].message })
         }
 
@@ -57,7 +56,37 @@ const signUp =  async (req, res) => {
     }
 };
 
+const signIn = async (req,res) => {
+    try{
+        const {username, password} = signInSchema.parse(req.body)
+
+        const user = User.findOne({username})
+        if(!user)
+        {
+            return res.status(400).json({message:'invalid username or password'})
+        }
+
+        const passwordMatch = await bcrypt.compare(password, user.password)
+        if(!passwordMatch)
+        {
+            return res.status(400).json({message:'invalid username or password'})
+        }
+        
+        setTokenCookie(res,newUser, process.env.JWT_SECRET)
+    }
+    catch (error) {
+        console.log(error);
+
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ message: error.errors[0].message })
+        }
+
+        return res.status(500).json({ message: 'Internal server error' })
+    }
+}
+
 module.exports = {
-    signUp
+    signUp,
+    signIn,
 }
 
