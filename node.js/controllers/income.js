@@ -1,5 +1,6 @@
 const { z } = require('zod');
 const User = require('../models/user');
+const {} = require('../lib/validation/user')
 
 const addIncome = async (req, res) => {
     try{
