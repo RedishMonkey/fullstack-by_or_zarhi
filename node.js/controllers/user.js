@@ -85,8 +85,21 @@ const signIn = async (req,res) => {
     }
 }
 
+const signOut = async (req, res) => {
+    try{
+        res.clearCoockie('token');
+        return res.status(200).json({message: 'User signed out successfully'})        
+    }
+    catch(error)
+    {
+        console.log(error);
+        res.status(500).json({message: 'Interval server error'})
+    }
+} 
+
 module.exports = {
     signUp,
     signIn,
+    signOut,
 }
 

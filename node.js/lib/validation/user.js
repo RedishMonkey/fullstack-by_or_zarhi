@@ -1,5 +1,7 @@
 const { z } = require('zod');
 
+const userIdValidation = z.string().regex(/^[0-9a-fA-F]{24}$/)
+
 const usernameValidation = z
 .string()
 .min(3, {
@@ -50,4 +52,5 @@ const signInSchema = z.object({
 module.exports = {
   signUpSchema,
   signInSchema,
+  userIdValidation,
 }
