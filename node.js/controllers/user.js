@@ -2,7 +2,7 @@ const User = require('../models/user');
 const {signUpSchema, signInSchema} = require('../lib/validation/user');
 const { z } = require('zod');
 const bcrypt = require('bcrypt')
-const {setTokenCookie} = require('../lib/utils');
+const {setTokenCookie} = require('../lib/validation/utils');
 
 
 const signUp = async (req, res) => {
