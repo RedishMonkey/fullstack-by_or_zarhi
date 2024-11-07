@@ -1,6 +1,8 @@
 const { z } = require('zod');
 
-const userIdValidation = z.string().regex(/^[0-9a-fA-F]{24}$/);
+const userIdValidation = z.string().regex(/^[0-9a-fA-F]{24}$/,{
+  message: 'Invalid user id',
+});
 
 const usernameValidation = z
 .string()
