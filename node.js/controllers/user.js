@@ -59,20 +59,22 @@ const signUp = async (req, res) => {
 const signIn = async (req,res) => {
     try{
         const {username, password} = signInSchema.parse(req.body)
-
-        const user = User.findOne({username})
+        
+        const user = await User.findOne({username})
+        
         if(!user)
         {
             return res.status(400).json({message:'invalid username or password'})
         }
-
+        
         const passwordMatch = await bcrypt.compare(password, user.password)
         if(!passwordMatch)
         {
             return res.status(400).json({message:'invalid username or password'})
         }
-        
-        setTokenCookie(res,newUser, process.env.JWT_SECRET)
+        setTokenCookie(res,user, process.env.JWT_SECRET)
+
+        return res.status(200).json({message: "ok"})
     }
     catch (error) {
         console.log(error);
@@ -81,13 +83,13 @@ const signIn = async (req,res) => {
             return res.status(400).json({ message: error.errors[0].message })
         }
 
-        return res.status(500).json({ message: 'Internal server error' })
+        return res.status(500).json({ message: 'Internal server error'})
     }
 }
 
 const signOut = async (req, res) => {
     try{
-        res.clearCoockie('token');
+        res.clearCookie('token');
         return res.status(200).json({message: 'User signed out successfully'})        
     }
     catch(error)
@@ -102,4 +104,3 @@ module.exports = {
     signIn,
     signOut,
 }
-

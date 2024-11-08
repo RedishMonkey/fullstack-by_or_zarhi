@@ -11,6 +11,7 @@ const addIncome = async (req, res) => {
         const { title, description, amount, tag, currency } = incomeSchema.parse(req.body);
 
         const userExists = await User.findById(userId);
+
         if (!userExists) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -22,10 +23,11 @@ const addIncome = async (req, res) => {
             tag,
             currency,
         })
-
+        
         await income.save();
 
         userExists.incomes.push(income)
+        await userExists.save();
 
         return res.status(201).json({ message: 'Income added successfully' });
     }
@@ -40,17 +42,16 @@ const addIncome = async (req, res) => {
 
 const getIncomes = async (req, res) => {
     try {
+        console.log(1);
         const userId = userIdValidation.parse(req.params.userId);
 
         const userExists = await User.findById(userId);
         if (!userExists) {
             return res.status(404).json({ message: 'User not found' });
         }
-
+        console.log(5);
         const incomes = await Income.find({ _id: { $in: userExists.incomes } })
-
-        await income.save();
-
+        
         return res.status(201).json(incomes);
     }
     catch (error) {
@@ -64,6 +65,7 @@ const getIncomes = async (req, res) => {
 
 const updateIncome = async (req, res) => {
     try {
+        console.log(1);
         const userId = userIdValidation.parse(req.params.userId);
         const incomeId = incomeIdValidation.parse(req.params.incomeId);
 
