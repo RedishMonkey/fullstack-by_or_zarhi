@@ -17,7 +17,7 @@ const expenseSchema = new mongoose.Schema({
     tag: {
         type: String,
         required: true,
-        enum: ['food', 'rent', 'transport', 'clothing', 'entertainment', 'helth', 'education', 'other']
+        enum: ['food', 'rent', 'transport', 'clothing', 'entertainment', 'health', 'education', 'other']
     },
     corruncy: {
         type: String,

@@ -1,14 +1,14 @@
 const { z } = require('zod');
 const User = require('../models/user');
-const Income = require('../models/income');
+const Expense = require('../models/expense');
 const { userIdValidation } = require('../lib/validation/user')
-const { incomeSchema, incomeIdValidation } = require('../lib/validation/income');
-const income = require('../models/income');
+const { expenseSchema, expenseIdValidation } = require('../lib/validation/expense');
+const expense = require('../models/expense');
 
-const addIncome = async (req, res) => {
+const addExpense = async (req, res) => {
     try {
         const userId = userIdValidation.parse(req.params.userId);
-        const { title, description, amount, tag, currency } = incomeSchema.parse(req.body);
+        const { title, description, amount, tag, currency } = expenseSchema.parse(req.body);
 
         const userExists = await User.findById(userId);
 
@@ -16,7 +16,7 @@ const addIncome = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const income = new Income({
+        const expense = new Expense({
             title,
             description,
             amount,
@@ -24,12 +24,12 @@ const addIncome = async (req, res) => {
             currency,
         })
         
-        await income.save();
+        await expense.save();
 
-        userExists.incomes.push(income)
+        userExists.expenses.push(expense)
         await userExists.save();
 
-        return res.status(201).json({ message: 'Income added successfully' });
+        return res.status(201).json({ message: 'expense added successfully' });
     }
     catch (error) {
         console.log(error);
@@ -40,7 +40,7 @@ const addIncome = async (req, res) => {
     }
 }
 
-const getIncomes = async (req, res) => {
+const getExpenses = async (req, res) => {
     try {
         const userId = userIdValidation.parse(req.params.userId);
 
@@ -48,10 +48,10 @@ const getIncomes = async (req, res) => {
         if (!userExists) {
             return res.status(404).json({ message: 'User not found' });
         }
-        console.log(5);
-        const incomes = await Income.find({ _id: { $in: userExists.incomes } })
+
+        const expenses = await Expense.find({ _id: { $in: userExists.expenses } })
         
-        return res.status(201).json(incomes);
+        return res.status(201).json(expenses);
     }
     catch (error) {
         console.log(error);
@@ -62,12 +62,12 @@ const getIncomes = async (req, res) => {
     }
 }
 
-const updateIncome = async (req, res) => {
+const updateExpense = async (req, res) => {
     try {
         const userId = userIdValidation.parse(req.params.userId);
-        const incomeId = incomeIdValidation.parse(req.params.incomeId);
+        const expenseId = expenseIdValidation.parse(req.params.expenseId);
 
-        const { title, description, amount, tag, currency } = incomeSchema.parse(req.body);
+        const { title, description, amount, tag, currency } = expenseSchema.parse(req.body);
 
         const userExists = await User.findById(userId);
         if (!userExists) {
@@ -75,11 +75,11 @@ const updateIncome = async (req, res) => {
         }
 
 
-        if (!userExists.incomes.includes(incomeId)) {
-            return res.status(404).json({ message: 'Income not found' })
+        if (!userExists.expenses.includes(expenseId)) {
+            return res.status(404).json({ message: 'expense not found' })
         }
 
-        const updatedIncome = await Income.findByIdAndUpdate(incomeId, {
+        const updatedExpense = await Expense.findByIdAndUpdate(expenseId, {
             title,
             description,
             amount,
@@ -87,9 +87,9 @@ const updateIncome = async (req, res) => {
             currency,
         })
 
-        if(!updatedIncome)
+        if(!updatedExpense)
         {
-            return res.status(404).json({message: 'Income not found'})
+            return res.status(404).json({message: 'expense not found'})
         }
         return res.status(200).json({message: "ok"});
 
@@ -104,10 +104,10 @@ const updateIncome = async (req, res) => {
     }
 }
 
-const deleteIncome = async (req, res) => {
+const deleteExpense = async (req, res) => {
     try {
         const userId = userIdValidation.parse(req.params.userId);
-        const incomeId = incomeIdValidation.parse(req.params.incomeId);
+        const expenseId = expenseIdValidation.parse(req.params.expenseId);
 
         const userExists = await User.findById(userId);
         if (!userExists) {
@@ -115,13 +115,13 @@ const deleteIncome = async (req, res) => {
         }
 
 
-        if (!userExists.incomes.includes(incomeId)) {
-            return res.status(404).json({ message: 'Income not found' })
+        if (!userExists.expenses.includes(expenseId)) {
+            return res.status(404).json({ message: 'expense not found' })
         }
 
         
-        await Income.findByIdAndDelete(incomeId);
-        userExists.incomes = await userExists.incomes.filter(id => id.toString()!=incomeId);
+        await expense.findByIdAndDelete(expenseId);
+        userExists.expenses = await userExists.expenses.filter(id => id.toString()!=expenseId);
         await userExists.save();
 
         return res.status(200).json({message: "ok"});
@@ -142,8 +142,8 @@ const deleteIncome = async (req, res) => {
 
 
 module.exports = {
-    addIncome,
-    getIncomes,
-    updateIncome,
-    deleteIncome,
+    addExpense,
+    getExpenses,
+    updateExpense,
+    deleteExpense,
 }
