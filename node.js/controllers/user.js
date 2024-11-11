@@ -122,15 +122,10 @@ const updateUser = async (req, res) => {
         let hashedPassword = await bcrypt.hash(password, 10);
 
         const isDefaultPassword = password == "passowrd not given" //checks if a new password was given in the body
-        console.log("password: ", password)
 
         if(isDefaultPassword){
             hashedPassword = userExists.password
         }
-
-        console.log("hashed password: ", hashedPassword)
-        console.log("current password: ", userExists.password)
-
 
         const updatedUser = await User.findByIdAndUpdate(userId, {
             fullName, 
