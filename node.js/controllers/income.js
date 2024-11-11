@@ -89,7 +89,7 @@ const updateIncome = async (req, res) => {
 
         if(!updatedIncome)
         {
-            return res.status(404).json({message: 'Income not found'})
+            return res.status(500).json({message: 'Update could not occur'})
         }
         return res.status(200).json({message: "ok"});
 
