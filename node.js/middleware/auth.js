@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
-const User = require('../models/user')
+const User = require('../models/user');
+const { date } = require('zod');
 
 const auth = async (req, res, next) => {
     try {
@@ -9,12 +10,16 @@ const auth = async (req, res, next) => {
             throw new Error('Token not found');
         }
 
-        const decoded  = jwt.verify(token, process.env.JWT_PROCESS);
+        const decoded = jwt.verify(token, process.env.JWT_PROCESS);
 
         if(!decoded){
             throw new Error('Invalid token');
         }
 
+        if(decoded.exp < Date.now() / 1000)
+        {
+            throw new Error('Token expired')
+        }
         const user = await User.findOne({ _id: decoded.id});
 
         if(!user){
@@ -28,6 +33,8 @@ const auth = async (req, res, next) => {
         
     }
 }
+
+module.exports = auth
 
 //finish income (delete income)
 //finish expense (add, get, update, delete)

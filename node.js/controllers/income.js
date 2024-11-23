@@ -7,6 +7,11 @@ const income = require('../models/income');
 
 const addIncome = async (req, res) => {
     try {
+
+        if(req.user._id !== req.params.userId){
+            return res.status(404).json({message: 'Forbiden'})
+        }
+
         const userId = userIdValidation.parse(req.params.userId);
         const { title, description, amount, tag, currency } = incomeSchema.parse(req.body);
 
@@ -42,6 +47,15 @@ const addIncome = async (req, res) => {
 
 const getIncomes = async (req, res) => {
     try {
+        
+        if(req.user._id !== req.params.userId){
+            return res.status(404).json({message: 'Forbiden'})
+        }
+
+        if(req.user._id !== req.params.userId){
+            return res.status(404).json({message: 'Forbiden'})
+        }
+
         const userId = userIdValidation.parse(req.params.userId);
 
         const userExists = await User.findById(userId);
@@ -64,6 +78,11 @@ const getIncomes = async (req, res) => {
 
 const updateIncome = async (req, res) => {
     try {
+
+        if(req.user._id !== req.params.userId){
+            return res.status(404).json({message: 'Forbiden'})
+        }
+
         const userId = userIdValidation.parse(req.params.userId);
         const incomeId = incomeIdValidation.parse(req.params.incomeId);
 
@@ -106,6 +125,11 @@ const updateIncome = async (req, res) => {
 
 const deleteIncome = async (req, res) => {
     try {
+
+        if(req.user._id !== req.params.userId){
+            return res.status(404).json({message: 'Forbiden'})
+        }
+
         const userId = userIdValidation.parse(req.params.userId);
         const incomeId = incomeIdValidation.parse(req.params.incomeId);
 
@@ -120,8 +144,12 @@ const deleteIncome = async (req, res) => {
         }
 
         
-        await Income.findByIdAndDelete(incomeId);
-        userExists.incomes = await userExists.incomes.filter(id => id.toString()!=incomeId);
+        const deleted = await Income.findByIdAndDelete(incomeId);
+        if(!deleted){
+            return res.status(404).json({ message: 'Income not found' })
+        }
+
+        userExists.incomes = userExists.incomes.filter(id => id.toString()!=incomeId);
         await userExists.save();
 
         return res.status(200).json({message: "ok"});

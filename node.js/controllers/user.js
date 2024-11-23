@@ -100,7 +100,12 @@ const signOut = async (req, res) => {
 
 const updateUser = async (req, res) => {
     try{
-        userId = userIdValidation.parse(req.params.userId);
+
+        if(req.user._id !== req.params.userId){
+            return res.status(404).json({message: 'Forbiden'})
+        }
+
+        const userId = userIdValidation.parse(req.params.userId);
         const userExists = await User.findOne({_id:userId})
         if(!userId){
             return res.status(404).json({message: "User not found"})
@@ -119,23 +124,25 @@ const updateUser = async (req, res) => {
 
 
         
-        let hashedPassword = await bcrypt.hash(password, 10);
 
         const isDefaultPassword = password == "passowrd not given" //checks if a new password was given in the body
 
         if(isDefaultPassword){
-            hashedPassword = userExists.password
+            password = userExists.password
+        }
+        else{
+            password = await bcrypt.hash(password, 10);
         }
 
         const updatedUser = await User.findByIdAndUpdate(userId, {
-            fullName, 
-            email, 
-            password: hashedPassword,
+            fullName,
+            email,
+            password
         })
 
 
         if(!updatedUser){
-            return res.status(404).json({message: 'Income not found'})
+            return res.status(404).json({message: 'User not found'})
         }
         
         return res.status(200).json({message: "ok"});
