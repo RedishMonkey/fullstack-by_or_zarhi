@@ -6,6 +6,8 @@ function App() {
   const [tasks, setTasks] = useState([]);
   const [inputValue, setInputValue] = useState("");
 
+  console.log(tasks)
+
   function addTask() {
     if (!inputValue.trim()) return;
 
@@ -34,7 +36,8 @@ function App() {
 
       return t
     })
-    setTasks[updatedTasks]
+
+    setTasks(updatedTasks)
   }
 
   return (
