@@ -110,6 +110,29 @@ li span {
   font-weight: 500;
 }
 
+.icons-wraper{
+  display: flex;
+  gap: 12px;
+}
+
+.icons-wraper > *{
+  width: 19px;
+  height: 19px;
+  cursor: pointer;
+}
+
+.icons-wraper .trash:hover{
+  color: #c82333;
+}
+
+.icons-wraper .edit:hover{
+  color: #2341c8;
+}
+
+.icons-wraper .check:hover{
+  color: #23c83e;
+}
+
 li button {
   background-color: #c92333;
   cursor: pointer;
