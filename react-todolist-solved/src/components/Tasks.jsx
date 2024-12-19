@@ -11,7 +11,7 @@ export const Tasks = () => {
     
     const [tasks, setTasks] = useState([]);
     const [inputValue, setInputValue] = useState("");
-    const [editIDTask, SetEditIDTask] = useState("")
+    const [editIDTask, SetEditIDTask] = useState(null)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -57,12 +57,44 @@ export const Tasks = () => {
   
       setTasks(updatedTasks);
     }
-    // function editTask()
-    // {
-    //   setInputValue(task.text)
-    //   SetEditIDTask(task.id)
+    function editTask()
+    {
+      setInputValue(task.text)
+      SetEditIDTask(task.id)
       
-    // }  
+    }  
+
+
+    function upsertTask(){
+      if(!inputValue.trim()) return;
+
+      if(editIDTask){
+        const updatedTasks = tasks.map((task) => {
+          if(task.id === editIDTask){
+            return {
+              ...task,
+              text:inputValue,
+            };
+          }
+          return task;
+        });
+
+        setTasks(updatedTasks)
+        setInputValue('')
+        SetEditIDTask(null)
+        return;
+      }
+
+      const newTask = {
+        id: uuidv4(),
+        text: inputValue,
+        completed: false,
+      }
+
+      setTasks([...tasks, newTask])
+      setInputValue('')
+      SetEditIDTask(null)
+    }
 
    return (
     <main>
@@ -75,7 +107,7 @@ export const Tasks = () => {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
           />
-          <button onClick={addTask}>add</button>
+          <button onClick={upsertTask}>add</button>
         </div>
         <ul className="task-list">
           {tasks.map((task) => (
@@ -87,7 +119,7 @@ export const Tasks = () => {
               <div className="icons-wraper">
                 <CheckCheck className="check" onClick={() => toggleTaskCompleted(task)}/>
                 <Pencil className="edit" onClick={(task) => editTask(task)} />
-                {/* <Trash2 className="trash" onClick={() => deleteTask(task.id)} /> */}
+                <Trash2 className="trash" onClick={() => deleteTask(task.id)} />
               </div>
             </li>
           ))}
